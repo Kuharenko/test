@@ -15,7 +15,9 @@ $enableYooMoney     = $_GET['enableYooMoney'] ?? false; // true | false
 // Вам нужно сделать логику класса PaymentTypeSelector (можете назвать иначе, если хотите)
 $paymentTypeSelector = new PaymentTypeSelector($productType, $amount, $lang, $countryCode, $userOs);
 
-if ($enableYooMoney) $paymentTypeSelector->addPaymentAction(new \App\Actions\ClearAll());
+if ($enableYooMoney) {
+    $paymentTypeSelector->addPaymentAction(new \App\Actions\ClearAll()); // вызываем нужное нам действие, к примеру очистить кнопки
+}
 
 $paymentButtons = $paymentTypeSelector->generateButtons();
 

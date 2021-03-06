@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Contracts\Action;
 use App\Contracts\Selector;
 
 class PaymentType
