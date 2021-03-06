@@ -39,15 +39,15 @@ class PaymentType
         $conditions = $this->DisplayConditions;
 
         if (isset($conditions['Available']) && isset($conditions['NotAvailable'])) {
-            if ($this->checkAvailability($selector, $conditions) && !$this->checkUnavailability($selector, $conditions)) {
+            if ($this->checkConditions($selector, $conditions) && !$this->checkConditions($selector, $conditions, false)) {
                 $selector->addPaymentType($this);
             }
         } elseif (isset($conditions['Available']) && !isset($conditions['NotAvailable'])) {
-            if ($this->checkAvailability($selector, $conditions)) {
+            if ($this->checkConditions($selector, $conditions)) {
                 $selector->addPaymentType($this);
             }
         } elseif (!isset($conditions['Available']) && isset($conditions['NotAvailable'])) {
-            if (!$this->checkUnavailability($selector, $conditions)) {
+            if (!$this->checkConditions($selector, $conditions, false)) {
                 $selector->addPaymentType($this);
             }
         } else {
@@ -55,12 +55,16 @@ class PaymentType
         }
     }
 
-    public function checkAvailability(Selector $selector, $conditions): bool
+    public function checkConditions(Selector $selector, $conditions, $isAvailability = true): bool
     {
-        $enabled = true;
-        $type = 'Available';
+        $checkingResults = [];
+
+        $type = $isAvailability ? 'Available' : 'NotAvailable';
+
         if (isset($conditions[$type])) {
             foreach ($conditions[$type] as $condition => $value) {
+                $checkingResults[$condition] = false;
+
                 switch (gettype($value)) {
                     case 'array':
                         if (isset($selector->$condition)) {
@@ -69,80 +73,37 @@ class PaymentType
 
                             switch ($operation) {
                                 case 'in':
-                                    $enabled = in_array($selector->$condition, $operationValue);
+                                    $checkingResults[$condition] = in_array($selector->$condition, $operationValue);
                                     break;
                                 case 'not_in':
-                                    $enabled = !in_array($selector->$condition, $operationValue);
+                                    $checkingResults[$condition] = !in_array($selector->$condition, $operationValue);
                                     break;
                                 case 'less':
-                                    $enabled = $selector->$condition < $operationValue;
+                                    $checkingResults[$condition] = $selector->$condition < $operationValue;
                                     break;
                                 case 'equal':
-                                    $enabled = $selector->$condition == $operationValue;
+                                    $checkingResults[$condition] = $selector->$condition == $operationValue;
                                     break;
                                 // todo: add other operations
                             }
                         } else {
-                            $enabled = false;
+                            $checkingResults[$condition] = $isAvailability;
                         }
                         break;
                     case 'string':
-                        if (isset($selector->$condition) && $value === $selector->$condition) {
-                            $enabled = true;
-                        } else {
-                          $enabled = false;
-                        }
+                        $checkingResults[$condition] = isset($selector->$condition) && $value === $selector->$condition;
                         break;
                 }
             }
         }
 
-        return $enabled;
-    }
 
-    public function checkUnavailability(Selector $selector, $conditions): bool
-    {
-        $enabled = false;
-        $type = 'NotAvailable';
-        if (isset($conditions[$type])) {
-            foreach ($conditions[$type] as $condition => $value) {
-                switch (gettype($value)) {
-                    case 'array':
-                        if (isset($selector->$condition)) {
-                            $operation = array_keys($value)[0];
-                            $operationValue = $value[$operation];
-
-                            switch ($operation) {
-                                case 'in':
-                                    $enabled = in_array($selector->$condition, $operationValue);
-                                    break;
-                                case 'not_in':
-                                    $enabled = !in_array($selector->$condition, $operationValue);
-                                    break;
-                                case 'less':
-                                    $enabled = $selector->$condition < $operationValue;
-                                    break;
-                                case 'equal':
-                                    $enabled = $selector->$condition == $operationValue;
-                                    break;
-                                // todo: add other operations
-                            }
-                        } else {
-                            $enabled = true;
-                        }
-                        break;
-                    case 'string':
-                        if (isset($selector->$condition) && $value === $selector->$condition) {
-                            $enabled = true;
-                        } else {
-                            $enabled = false;
-                        }
-                        break;
-                }
-            }
+        $status = true;
+        foreach ($checkingResults as $condition => $value) {
+            $status = $status && $value;
         }
 
-        return $enabled;
+        return $status;
     }
 
     public function collectActions(Selector $selector)
@@ -206,12 +167,18 @@ class PaymentType
         return $this->Type;
     }
 
-    public function getOrder() : int
+    public function getOrder(): int
     {
         return $this->Order;
     }
 
-    public function modify($attributes = []) {
+    public function getId(): int
+    {
+        return $this->ID;
+    }
+
+    public function modify($attributes = [])
+    {
         foreach ($attributes as $attribute => $value) {
             if (isset($this->$attribute)) {
                 $this->$attribute = $value;
@@ -238,7 +205,7 @@ class PaymentType
             if ($attributes['IsActive']) {
                 return new PaymentType($attributes);
             }
-            return  null;
+            return null;
         }, $items));
     }
 }

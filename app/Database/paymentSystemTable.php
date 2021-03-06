@@ -11,5 +11,11 @@ return [
         "Name" => "Выключенная платёжная система",
         "IsActive" => false,
         "Settings" => []
+    ],
+    [
+        "ID" => 3,
+        "Name" => "Yandex.Kassa",
+        "IsActive" => true,
+        "Settings" => []
     ]
 ];

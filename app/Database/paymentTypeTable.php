@@ -83,7 +83,7 @@ return [
         "Type" => "wallet",
         "DisplayConditions" => [],
         "ActionConditions" => [
-            'onlyInternalWallet' => ['lang' => 'ru', 'productType' => 'Награда', 'amount' => ['less' => 10]]
+            'onlyInternalWallet' => ['lang' => 'ru', 'productType' => 'reward', 'amount' => ['less' => 10]]
         ]
     ],
     [
@@ -141,10 +141,39 @@ return [
         "ImageUrl" => "refill.jpg",
         "Order" => 7,
         "IsActive" => true,
-        "Type" => "wallet",
+        "Type" => "terminal",
         "DisplayConditions" => [],
         "ActionConditions" => [
-            'onlyExternalPayments' => ['productType' => 'Пополнение кошелька']
+            'onlyExternalPayments' => ['productType' => 'walletRefill']
         ]
+    ],
+    [
+        "ID" => 10,
+        "PaymentSystemID" => 1,
+        "Name" => "Терминалы IBOX",
+        "Commission" => 4,
+        "PayUrl" => "/ibox/123",
+        "ImageUrl" => "ibox.jpg",
+        "Order" => 7,
+        "IsActive" => true,
+        "Type" => "terminal",
+        "DisplayConditions" => [],
+        "ActionConditions" => []
+    ],
+    [
+        "ID" => 11,
+        "PaymentSystemID" => 3,
+        "Name" => "Карты \"МИР\"",
+        "Commission" => 2.5,
+        "PayUrl" => "/mir/123",
+        "ImageUrl" => "mir.jpg",
+        "Order" => 1,
+        "IsActive" => true,
+        "Type" => "card",
+        "DisplayConditions" => [
+            'Available' => ['countryCode' => 'PL'],
+            'NotAvailable' => ['countryCode' => 'KZ'],
+        ],
+        "ActionConditions" => []
     ],
 ];

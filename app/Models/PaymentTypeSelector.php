@@ -18,17 +18,13 @@ class PaymentTypeSelector implements Selector
     private $buttons = [];
     private $actions = [];
 
-    public function __construct($productType, $amount, $lang, $countryCode, $userOs)
+    public function __construct($productType = null, $amount = null, $lang = null, $countryCode = null, $userOs = null)
     {
         $this->productType = $productType;
         $this->amount = $amount;
         $this->lang = $lang;
         $this->countryCode = $countryCode;
         $this->userOs = $userOs;
-
-        $this->actions = [
-            new CardFirst()
-        ];
     }
 
     public function generateButtons(): array
@@ -51,6 +47,7 @@ class PaymentTypeSelector implements Selector
             $paymentType->collectActions($this);
         }
 
+        $this->addPaymentAction(new CardFirst()); // сортируем способы оплаты уже в конце
         foreach ($this->actions as $action) {
             $action->apply($this);
         }
